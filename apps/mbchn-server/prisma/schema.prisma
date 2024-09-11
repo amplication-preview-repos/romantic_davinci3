@@ -1,0 +1,80 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model MedicalTest {
+  createdAt    DateTime      @default(now())
+  date         DateTime?
+  doctor       Doctor?       @relation(fields: [doctorId], references: [id])
+  doctorId     String?       @db.ObjectId
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  results      Json?
+  testName     String?
+  transactions Transaction[]
+  updatedAt    DateTime      @updatedAt
+  user         User?         @relation(fields: [userId], references: [id])
+  userId       String?       @db.ObjectId
+}
+
+model Doctor {
+  createdAt        DateTime         @default(now())
+  firstName        String?
+  id               String           @id @default(auto()) @map("_id") @db.ObjectId
+  lastName         String?
+  medicalHistories MedicalHistory[]
+  medicalTests     MedicalTest[]
+  specialty        String?
+  transactions     Transaction[]
+  updatedAt        DateTime         @updatedAt
+  user             User?            @relation(fields: [userId], references: [id])
+  userId           String?          @db.ObjectId
+}
+
+model MedicalHistory {
+  createdAt   DateTime  @default(now())
+  date        DateTime?
+  description String?
+  diagnosis   String?
+  doctor      Doctor?   @relation(fields: [doctorId], references: [id])
+  doctorId    String?   @db.ObjectId
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  updatedAt   DateTime  @updatedAt
+  user        User?     @relation(fields: [userId], references: [id])
+  userId      String?   @db.ObjectId
+}
+
+model Transaction {
+  amount          Float?
+  createdAt       DateTime     @default(now())
+  date            DateTime?
+  doctor          Doctor?      @relation(fields: [doctorId], references: [id])
+  doctorId        String?      @db.ObjectId
+  id              String       @id @default(auto()) @map("_id") @db.ObjectId
+  medicalTest     MedicalTest? @relation(fields: [medicalTestId], references: [id])
+  medicalTestId   String?      @db.ObjectId
+  transactionType String?
+  updatedAt       DateTime     @updatedAt
+  user            User?        @relation(fields: [userId], references: [id])
+  userId          String?      @db.ObjectId
+}
+
+model User {
+  createdAt        DateTime         @default(now())
+  doctors          Doctor[]
+  email            String?          @unique
+  firstName        String?
+  id               String           @id @default(auto()) @map("_id") @db.ObjectId
+  lastName         String?
+  medicalHistories MedicalHistory[]
+  medicalTests     MedicalTest[]
+  password         String
+  roles            Json
+  transactions     Transaction[]
+  updatedAt        DateTime         @updatedAt
+  username         String           @unique
+}
